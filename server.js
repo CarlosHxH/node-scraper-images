@@ -9,8 +9,18 @@ app.use(express.json());
 // Função para fazer scraping das imagens
 async function scrapeGoogleImages(query, limit = 20) {
   const launchOptions = {
+    // headless: 'new',
+    // args: ['--no-sandbox', '--disable-setuid-sandbox']
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--single-process'
+    ],
+    ignoreHTTPSErrors: true
   };
   
   // Usar executável do Chromium do sistema se disponível (Docker)
@@ -104,6 +114,10 @@ app.get('/', (req, res) => {
       search: '/api/images/search?q=termo&limit=3'
     }
   });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', chromium: !!process.env.PUPPETEER_EXECUTABLE_PATH });
 });
 
 // Rota para buscar imagens

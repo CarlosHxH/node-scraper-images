@@ -10,12 +10,14 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
-    wget
+    font-noto-emoji \
+    wget \
+    dumb-init
 
-# Configurar variáveis de ambiente para Puppeteer
+# Configurar variáveis de ambiente para Puppeteer - CORREÇÃO AQUI
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser \
-    CHROMIUM_PATH=/usr/bin/chromium-browser \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    CHROMIUM_PATH=/usr/bin/chromium \
     PORT=3000
 
 # Criar diretório de trabalho
@@ -32,7 +34,8 @@ COPY server.js ./
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
 
 # Mudar para usuário não-root
 USER nodejs
@@ -40,6 +43,6 @@ USER nodejs
 # Expor porta da aplicação
 EXPOSE 3000
 
-# Comando de inicialização
+# Comando de inicialização usando dumb-init (recomendado para Docker)
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "server.js"]
-

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   scraper-api:
     build:
-      context: ./node-scraper
+      context: .
       dockerfile: Dockerfile
     container_name: google-images-scraper-api
     ports:
